@@ -1,9 +1,8 @@
-class Card < Struct.new(:name, :value)
-  def view
-    name.encode('UTF-8')
-  end
-
-  def rank
-    value
+class Card
+  attr_reader :name, :value
+  
+  def initialize(name, value)
+    @name = name
+    @value = value
   end
 end
