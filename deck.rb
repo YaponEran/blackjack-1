@@ -15,12 +15,12 @@ class Deck
   attr_accessor :cards
 
   def initialize
-    @cards = build_cards.shuffle
+    @cards = collect_cards.shuffle
   end
 
   private
 
-  def build_cards
+  def collect_cards
     cards = []
     RANKS.each do |rank|
       SUITS.each do |suit|
