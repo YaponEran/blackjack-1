@@ -1,8 +1,7 @@
 require_relative 'card.rb'
 
 class Deck
-  
-  SUITS = %W( \u2664 \u2661 \u2667 \u2662 ).freeze
+  SUITS = %W[\u2664 \u2661 \u2667 \u2662].freeze
 
   RANKS = [
     { name: '2', value: 2 }, { name: '3', value: 3 },
@@ -19,17 +18,16 @@ class Deck
     @cards = build_cards.shuffle
   end
 
-  private 
+  private
 
   def build_cards
     cards = []
     RANKS.each do |rank|
       SUITS.each do |suit|
         cards << Card.new("#{rank[:name]}#{suit}", rank[:value])
-      end  
+      end
     end
 
     cards
   end
-
 end
