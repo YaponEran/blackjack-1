@@ -23,7 +23,7 @@ class GameTable
   def give_out_cards(n)
     players.each do |player|
       n.times do |_|
-        player.add_card(deck.cards)
+        player.add_card(deck)
       end
     end    
   end
