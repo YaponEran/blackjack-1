@@ -8,8 +8,8 @@ class Player
     @crads = []
   end
 
-  def add_card
-    #добавить карту в руку
+  def add_card(deck)
+    cards << deck.pop
   end
 
   def pass
