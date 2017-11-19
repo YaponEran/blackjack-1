@@ -4,6 +4,7 @@ class Player
   def initialize(name, dealer = false)
     @name = name
     @bank = 100
+    @dealer = dealer
   end
 
   def add_card
@@ -13,13 +14,13 @@ class Player
   def pass
     #пропустить ход
   end
- 
+
   def dealer?
-    return dealer
+    dealer
   end
- 
+
   protected
-  
+
   attr_reader :dealer
 
   def place_bet

@@ -5,6 +5,6 @@ class Computer < Player
   include NameGenerator
 
   def initialize
-    super(generate_name)
+    super(generate_name, true)
   end
 end
