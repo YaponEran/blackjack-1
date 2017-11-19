@@ -9,7 +9,7 @@ class Player
   end
 
   def add_card(deck)
-    cards << deck.pop
+    cards << deck.cards.pop
   end
 
   def pass
