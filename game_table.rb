@@ -23,8 +23,14 @@ class GameTable
   def give_out_cards(n)
     players.each do |player|
       n.times do |_|
-        player.add_card(deck)
+        player.add_card(deck.cards)
       end
     end    
   end
 end
+
+p1 = Computer.new
+p2 = Human.new('Alex')
+d = Deck.new
+
+gt = GameTable.new([p1,p2], d)
