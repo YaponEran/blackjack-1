@@ -10,6 +10,12 @@ class GameTable
     @deck = deck
     @points_to_win = 21
 
+    2.times do |_|
+      @players.each do |player|
+        player.add_card(deck)
+      end
+    end    
+
     @value_bet = 10    
     @bank = nil
   end
