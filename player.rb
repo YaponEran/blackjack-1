@@ -5,7 +5,7 @@ class Player
     @name = name
     @bank = 100
     @dealer = dealer
-    @crads = []
+    @cards = []
   end
 
   def add_card(deck)
