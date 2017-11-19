@@ -5,10 +5,11 @@ class Player
     @name = name
     @bank = 100
     @dealer = dealer
+    @cards = []
   end
 
-  def add_card
-    #добавить карту в руку
+  def add_card(deck)
+    cards << deck.pop
   end
 
   def pass
