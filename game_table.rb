@@ -28,9 +28,3 @@ class GameTable
     end    
   end
 end
-
-p1 = Computer.new
-p2 = Human.new('Alex')
-d = Deck.new
-
-gt = GameTable.new([p1,p2], d)
