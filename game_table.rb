@@ -15,7 +15,22 @@ class GameTable
     give_out_cards(cards_start_count)
 
     @value_bet = 10    
-    @bank = nil
+    @bank = 0
+  end
+
+  def bank_to_player(player)
+    player.bank += bank
+    self.bank = 0
+  end
+
+  def bet_to_bank(player)
+    player.bank -= value_bet
+    self.bank += value_bet
+  end
+
+  def give_out_card(player)
+    #player.take_card(deck) - лучше
+    player.add_card(deck)
   end
 
   private
@@ -23,7 +38,7 @@ class GameTable
   def give_out_cards(n)
     players.each do |player|
       n.times do |_|
-        player.add_card(deck)
+        give_out_card(player)
       end
     end    
   end
