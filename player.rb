@@ -20,11 +20,12 @@ class Player
     dealer
   end
 
+  def place_bet(bet_value)
+    self.bank -= bet_value
+  end
+
   protected
 
   attr_reader :dealer
 
-  def place_bet
-    #сделать ставку
-  end
 end
