@@ -8,7 +8,7 @@ class Player
     @cards = []
   end
 
-  def add_card(deck)
+  def take_card(deck)
     cards << deck.cards.pop
   end
 
@@ -22,6 +22,13 @@ class Player
 
   def place_bet(bet_value)
     self.bank -= bet_value
+  end
+
+  def calculate_points
+    points = 0
+    cards.each { |card| points += card.value }
+
+    points
   end
 
   protected

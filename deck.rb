@@ -2,7 +2,6 @@ require_relative 'card.rb'
 
 class Deck
   SUITS = %W[\u2664 \u2661 \u2667 \u2662].freeze
-
   RANKS = [
     { name: '2', value: 2 }, { name: '3', value: 3 },
     { name: '4', value: 4 }, { name: '5', value: 5 },
