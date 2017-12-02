@@ -7,7 +7,7 @@ module KeyboardGets
   def gets_integer(msg = nil)
     print "#{msg}" unless msg.nil?
     value = gets.chomp
-    raise TypeError, "Не является числом: #{value}" if /[\D]/.match(value)
+    raise TypeError, "Не является числом (#{value})" if /[\D]/ =~ value
 
     value.to_i
   end

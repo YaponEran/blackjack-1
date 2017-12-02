@@ -3,7 +3,6 @@ require_relative 'user.rb'
 require 'yaml'
 
 class GameStation
-
   include KeyboardGets
 
   GAMES_LIST_FILE = 'games.yml'.freeze
@@ -18,12 +17,12 @@ class GameStation
 
   def change_game
     print_games
-    number = gets_integer("Выберите номер игры: ")
-    raise StandardError, "Номер игры не найден: #{number}" if games[number].nil?
+    number = gets_integer('Выберите номер игры: ')
+    raise StandardError, "Номер игры не найден (#{number})" if games[number].nil?
 
-    start_game({game: games[number], user: user})
+    start_game(game: games[number], user: user)
   end
- 
+
   private
 
   def sign_in
@@ -53,8 +52,8 @@ class GameStation
   end
 
   def gets_user_name
-    gets_string("Введите имя: ")
-  end 
+    gets_string('Введите имя: ')
+  end
 
   def print_games
     puts 'Список игр:'

@@ -2,7 +2,6 @@ require_relative '../../contracts/player.rb'
 require_relative 'name_generator.rb'
 
 class BlackjackPlayer < Player
-
   extend NameGenerator
 
   attr_reader :bank, :cards, :computer
@@ -16,10 +15,6 @@ class BlackjackPlayer < Player
 
   def take_card(card)
     cards << card
-  end
-
-  def pass
-    #пропустить ход
   end
 
   def dealer?
@@ -42,11 +37,10 @@ class BlackjackPlayer < Player
   end
 
   def self.create_bot
-    self.new(self.generate_name, true, true)
+    new(generate_name, true, true)
   end
 
   protected
 
   attr_reader :dealer
-
 end
