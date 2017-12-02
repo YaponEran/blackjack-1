@@ -13,7 +13,6 @@ class Blackjack < Game
     {
       action: :pass,
       name: "Пасс",
-      allow: :always,
     },
     {
       action: :take_card,
@@ -23,7 +22,6 @@ class Blackjack < Game
     {
       action: :show_cards,
       name: "Раскрыть карты",
-      allow: :always,
     },
   ].freeze
 
@@ -46,10 +44,10 @@ class Blackjack < Game
   end
 
   def game
-    turn_result = nil
     loop do
       show_cards if each_player_have_three_cards?
       self.current_player = next_player
+      update_enabled_actions
       if current_player.computer?
         turn_result = "#{current_player.name}: #{computer_remote(current_player)}"
       else
@@ -63,8 +61,8 @@ class Blackjack < Game
     end
   end
 
-  def take_card_allow?(player)
-    player.length < 3 
+  def take_card_allow?
+    current_player.cards.length < 3 
   end
 
   def computer_remote(player)
@@ -175,8 +173,8 @@ class Blackjack < Game
   end
  
   def update_enabled_actions
-    enable_actions = ACTIONS.collect do |action|
-      current_player.computer? && action[:permission].include?(:computer)
+    self.enabled_actions = ACTIONS.select do |action|
+      action.key?(:allow) && self.send(action[:allow]) || !action.key?(:allow)
     end
   end
  
@@ -185,12 +183,12 @@ class Blackjack < Game
     number = gets_integer("Выберите действие: ")
     raise StandardError, "Действие неопознано: #{number}" if ACTIONS[number].nil?
     
-    ACTIONS[number][:action]
+    enabled_actions[number][:action]
   end  
   
   def print_actions
-    ACTIONS.each_with_index do |action, index|
-      puts "[#{index}] #{action[:name]}"
+    enabled_actions.each_with_index do |action, index|
+        puts "[#{index}] #{action[:name]}" 
     end
   end
 
