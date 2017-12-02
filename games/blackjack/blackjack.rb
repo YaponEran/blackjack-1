@@ -1,4 +1,3 @@
-require_relative '../../contracts/game.rb'
 require_relative 'deck.rb'
 require_relative 'keyboard_gets.rb'
 require_relative 'blackjack_player.rb'

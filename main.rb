@@ -1,5 +1,7 @@
-require_relative 'utilities/screen.rb'
+require_relative 'contracts/game.rb'
+require_relative 'contracts/player.rb'
 require_relative 'game_station.rb'
+require_relative 'utilities/screen.rb'
 
 game_station = GameStation.new
 msg = nil

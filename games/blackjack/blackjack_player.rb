@@ -1,4 +1,3 @@
-require_relative '../../contracts/player.rb'
 require_relative 'name_generator.rb'
 
 class BlackjackPlayer < Player
