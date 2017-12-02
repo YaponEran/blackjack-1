@@ -63,7 +63,7 @@ class GameStation
 
   def start_game(params)
     Object.const_get(params[:game][:class]).start(params[:user].name)
-  rescue StandardError
-    raise "Игра не может быть запущена (#{params[:game][:name]})"
+  rescue StandardError => error
+    raise "Игра не может быть запущена (#{params[:game][:name]}): #{error}"
   end
 end

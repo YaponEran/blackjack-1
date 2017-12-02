@@ -23,6 +23,10 @@ class Blackjack < Game
       action: :show_cards,
       name: "Раскрыть карты",
     },
+    {
+      action: :exit,
+      name: "Выйти в меню",
+    },
   ].freeze
 
   attr_reader :players, :deck, :bank
@@ -56,7 +60,9 @@ class Blackjack < Game
         puts "---"
         print_state(current_player)
         puts "---"
-        self.send gets_actions
+        action = gets_actions
+        break if action == :exit
+        self.send action
       end
     end
   end
