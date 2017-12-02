@@ -1,7 +1,11 @@
-require_relative 'controller.rb'
+require_relative 'game_station.rb'
 
-controller = Controller.new
+game_station = GameStation.new
 
 loop do
-  controller.change_game
+  begin
+    game_station.change_game
+  rescue StandardError => error
+    puts "Ошибка: #{error}"
+  end
 end
