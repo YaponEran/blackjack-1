@@ -5,7 +5,7 @@ require_relative 'blackjack_player.rb'
 class Blackjack < Game
   include KeyboardGets
 
-  POINT_TO_WIN = 21
+  POINTS_TO_WIN = 21
   BET_VALUE = 10
   ACTIONS = [
     {
@@ -31,10 +31,8 @@ class Blackjack < Game
 
   def initialize(players)
     @players = players
-    @deck = Deck.new
     @bank = 0
     @players_count = players.length
-    give_out_cards(2)
   end
 
   def self.start(user_name, bot_count = 1)
@@ -45,20 +43,35 @@ class Blackjack < Game
   end
 
   def game
+    prepare_new_game
+    action_result = nil
     loop do
       show_cards if each_player_have_three_cards?
-      self.current_player = next_player
-      update_enabled_actions
-      if current_player.computer?
-        turn_result = "#{current_player.name}: #{computer_remote(current_player)}"
-      else
-        clear_screen
-        puts turn_result.to_s if turn_result
-        print_state(current_player)
-
-        break if send(gets_actions) == :exit
+      clear_screen
+      puts action_result
+      print_players_state
+      players.each do |player|
+        self.current_player = player
+        update_enabled_actions
+        action_result = player.computer? ? computer_remote : send(gets_actions)
       end
+
+      break if action_result == :exit
     end
+  end
+
+  def prepare_new_game
+    players_clear_hand
+    create_deck
+    give_out_cards(2)
+  end
+
+  def players_clear_hand
+    players.each(&:clear_hand)
+  end
+
+  def create_deck
+    self.deck = Deck.new
   end
 
   def exit
@@ -66,17 +79,11 @@ class Blackjack < Game
   end
 
   def take_card_allow?
-    current_player.cards.length < 3
+    current_player.cards.length < 3 && current_player.points < 21
   end
 
-  def computer_remote(player)
-    if player.calculate_points < 18 && take_card_allow?
-      take_card
-      'взял карту..'
-    else
-      pass
-      'я пасс..'
-    end
+  def computer_remote
+    take_card_allow? && rand(50) >= 25 ? take_card : pass
   end
 
   def each_player_have_three_cards?
@@ -85,22 +92,22 @@ class Blackjack < Game
   end
 
   def take_card
-    card_to_player(current_player)
+    current_player.take_card(deck.cards.pop)
   end
 
-  def print_state(player)
-    puts '---'
-    puts "Игрок: #{player.name}"
-    puts "Рука: #{player.cards.join(' | ')}"
-    puts "Очков: #{player.calculate_points}"
-    puts '---'
+  def print_players_state
+    players_state.each do |player|
+      cards = player[:cards].join(' | ')
+      puts "#{player[:name]} (#{player[:bank]}): [ #{cards} ] = #{player[:points]}"
+    end
   end
 
   def player_state(player)
     {
+      bank:   player.bank,
       name:   player.name,
-      cards:  player.cards,
-      points: player.calculate_points
+      cards:  player.cards.collect { |card| player.computer? ? '?' : card },
+      points: player.computer? ? '?' : player.points
     }
   end
 
@@ -110,25 +117,24 @@ class Blackjack < Game
 
   def show_cards
     clear_screen
-    players_state.each do |player|
-      puts "#{player[:name]}: #{player[:points]} [ #{player[:cards].join(' | ')} ]"
-    end
-    puts '---'
+    print_players_state
     print_winner(winner)
     gets
   end
 
   def print_winner(player)
-    puts "Победил #{player.name}!"
+    puts player.nil? ? 'Нет победителей' : "Победил #{player.name}"
   end
 
   def winner
     winner = players.first
     players.each do |player|
-      winner = player if player.calculate_points > winner.calculate_points
+      if player.points > winner.points && player.points <= POINTS_TO_WIN
+        winner = player
+      end
     end
 
-    winner
+    winner.points <= POINTS_TO_WIN ? winner : nil
   end
 
   def pass
@@ -137,17 +143,6 @@ class Blackjack < Game
 
   def clear_screen
     print "\e[2J\e[f"
-  end
-
-  def next_player
-    if current_player.nil?
-      number = 0
-    else
-      number = player_number(current_player) + 1
-      number = 0 if number > players.length - 1
-    end
-
-    players[number]
   end
 
   def player_number(player)
@@ -168,13 +163,9 @@ class Blackjack < Game
     players.each { |player| player_bet_to_bank(player) }
   end
 
-  def card_to_player(player)
-    player.take_card(deck.cards.pop)
-  end
-
   def give_out_cards(n = 1)
     players.each do |player|
-      n.times { card_to_player(player) }
+      n.times { player.take_card(deck.cards.pop) }
     end
   end
 
@@ -201,5 +192,6 @@ class Blackjack < Game
   protected
 
   attr_accessor :current_player, :enabled_actions
+  attr_writer :deck
   attr_reader :players_count
 end
