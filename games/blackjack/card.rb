@@ -1,9 +1,10 @@
 class Card
-  attr_reader :name, :value
+  attr_reader :name, :value, :rank
 
-  def initialize(name, value)
-    @name = name
-    @value = value
+  def initialize(card)
+    @name = "#{card[:suit]} #{card[:rank][:name]}"
+    @value = card[:rank][:value]
+    @rank = card[:rank][:name]
   end
 
   def to_s

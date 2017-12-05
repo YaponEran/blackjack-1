@@ -33,6 +33,7 @@ class Blackjack < Game
     @players = players
     @bank = 0
     @players_count = players.length
+    
   end
 
   def self.start(user_name, bot_count = 1)
@@ -44,19 +45,22 @@ class Blackjack < Game
 
   def game
     prepare_new_game
-    action_result = nil
+    action = nil
     loop do
       show_cards if each_player_have_three_cards?
       clear_screen
-      puts action_result
       print_players_state
+
       players.each do |player|
         self.current_player = player
-        update_enabled_actions
-        action_result = player.computer? ? computer_remote : send(gets_actions)
+        update_enabled_actions(player)
+        
+        action = gets_actions
+        break if action == :exit
+        player.computer? ? computer_remote(player) : send(action, player)
       end
 
-      break if action_result == :exit
+      break if action == :exit
     end
   end
 
@@ -64,6 +68,7 @@ class Blackjack < Game
     players_clear_hand
     create_deck
     give_out_cards(2)
+    show_hand = false
   end
 
   def players_clear_hand
@@ -74,16 +79,12 @@ class Blackjack < Game
     self.deck = Deck.new
   end
 
-  def exit
-    :exit
+  def take_card_allow?(player)
+    player.cards.length < 3 && player.points < 21
   end
 
-  def take_card_allow?
-    current_player.cards.length < 3 && current_player.points < 21
-  end
-
-  def computer_remote
-    take_card_allow? && rand(50) >= 25 ? take_card : pass
+  def computer_remote(player)
+    take_card_allow?(player) && rand(50) >= 25 ? take_card(player) : pass(player)
   end
 
   def each_player_have_three_cards?
@@ -91,31 +92,30 @@ class Blackjack < Game
     have_not_three_cards.empty?
   end
 
-  def take_card
-    current_player.take_card(deck.cards.pop)
+  def take_card(player)
+    player.take_card(deck.cards.pop)
   end
 
   def print_players_state
-    players_state.each do |player|
-      cards = player[:cards].join(' | ')
-      puts "#{player[:name]} (#{player[:bank]}): [ #{cards} ] = #{player[:points]}"
+    players.each do |player|
+      puts player.state(hide_hand: hide_hand?)
     end
   end
 
-  def player_state(player)
-    {
-      bank:   player.bank,
-      name:   player.name,
-      cards:  player.cards.collect { |card| player.computer? ? '?' : card },
-      points: player.computer? ? '?' : player.points
-    }
+  def show_hand?
+    show_hand
+  end
+ 
+  def hide_hand?
+    !show_hand?
   end
 
   def players_state
     players.collect { |player| player_state(player) }
   end
 
-  def show_cards
+  def show_cards(player)
+    self.show_hand = true
     clear_screen
     print_players_state
     print_winner(winner)
@@ -137,8 +137,8 @@ class Blackjack < Game
     winner.points <= POINTS_TO_WIN ? winner : nil
   end
 
-  def pass
-    true
+  def pass(player)
+    player.pass
   end
 
   def clear_screen
@@ -169,9 +169,9 @@ class Blackjack < Game
     end
   end
 
-  def update_enabled_actions
+  def update_enabled_actions(player)
     self.enabled_actions = ACTIONS.select do |action|
-      action.key?(:allow) && send(action[:allow]) || !action.key?(:allow)
+      action.key?(:allow) && send(action[:allow], player) || !action.key?(:allow)
     end
   end
 
@@ -191,7 +191,7 @@ class Blackjack < Game
 
   protected
 
-  attr_accessor :current_player, :enabled_actions
+  attr_accessor :current_player, :enabled_actions, :show_hand
   attr_writer :deck
   attr_reader :players_count
 end

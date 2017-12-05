@@ -15,7 +15,7 @@ class BlackjackPlayer < Player
 
   def take_card(card)
     cards << card
-    self.points += card.value
+    update_points
   end
 
   def clear_hand
@@ -30,6 +30,21 @@ class BlackjackPlayer < Player
     self.bank -= bet_value
   end
 
+  def pass
+    true
+  end
+
+  def show_cards
+    self.cards.join(' | ')
+  end
+
+  
+  def state(params)
+    cards = self.cards.collect { |card| computer? && params[:hide_hand] ? '?' : card }.join(' | ')
+    points = computer? && params[:hide_hand] ? '?' : self.points
+    "#{name}: Банк: #{bank} Рука: #{cards} Очков: #{points}"
+  end
+
   def computer?
     computer
   end
@@ -39,6 +54,22 @@ class BlackjackPlayer < Player
   end
 
   protected
+
+  def update_points
+    a = []
+    self.points = 0
+    cards.each do |card|
+      if card.rank == 'A'
+        a << card
+      else
+        self.points += card.value
+      end
+    end
+
+    a.each do |card|
+      self.points += (card.value + points > 21) ? 1 : card.value
+    end
+  end
 
   attr_writer :points, :cards
   attr_reader :dealer
