@@ -8,6 +8,10 @@ class Blackjack < Game
   POINTS_TO_WIN = 21
   MAX_CARDS = 3
   BET_VALUE = 10
+
+  EXIT_ACTION = :exit
+  PLAY_AGAIN_ACTION = :play_again
+
   ACTIONS = [
     {
       action: :pass,
@@ -23,8 +27,9 @@ class Blackjack < Game
       name: 'Раскрыть карты'
     },
     {
-      action: :exit,
-      name: 'Выйти в меню'
+      action: EXIT_ACTION,
+      name: 'Выйти в меню',
+      separate: true
     }
   ].freeze
 
@@ -33,8 +38,6 @@ class Blackjack < Game
   def initialize(players)
     @players = players
     @bank = 0
-    @players_count = players.length
-    
   end
 
   def self.start(user_name, bot_count = 1)
@@ -48,17 +51,21 @@ class Blackjack < Game
     prepare_new_game
     action = nil
     loop do
-      show_cards if each_player_have_three_cards?
+      show_cards(players) if each_player_have_three_cards?
       clear_screen
-      print_players_state
+      print_states
 
       players.each do |player|
-        action = gets_actions(player)
-        break if action == :exit
-        player.computer? ? computer_remote(player) : send(action, player)
+        if player.computer?
+          computer_remote(player)
+        else
+          action = gets_action(player)
+          send action, player unless action == EXIT_ACTION
+        end
+        break if action == EXIT_ACTION
       end
 
-      break if action == :exit
+      break if action == EXIT_ACTION
     end
   end
 
@@ -67,6 +74,29 @@ class Blackjack < Game
     create_deck
     give_out_cards(2)
     self.hide_hand = true
+    self.round_number = round_number.nil? ? 1 : round_number+1 
+  end
+
+  def show_cards(_p)
+    self.hide_hand = false
+    clear_screen
+    print_states
+    print_winner(winner)
+    prepare_new_game if play_again?
+  end
+
+  def play_again?
+    gets_string('Играть новый раунд? (y/*)').downcase == 'y'
+  end
+
+  def print_states
+    print_game_state
+    puts
+    print_players_state
+  end
+
+  def print_game_state
+    puts "Банк: #{bank} | Игроков: #{players.length} | Раунд: #{round_number}"
   end
 
   def players_clear_hand
@@ -82,11 +112,23 @@ class Blackjack < Game
   end
 
   def computer_remote(player)
-    take_card_allow?(player) && rand(50) >= 25 ? take_card(player) : pass(player)
+    if take_card_allow?(player)
+      risk_points = POINTS_TO_WIN - 4
+      case player.points
+      when player.points >= risk_points then take_card(player) if flip_coint(rand(2))
+      else take_card(player)
+      end
+    else
+      pass(player)
+    end
+  end
+
+  def flip_coint(x)
+    return rand(2) == x
   end
 
   def each_player_have_three_cards?
-    have_not_three_cards = players.collect { |player| player.cards.length < MAX_CARDS }
+    have_not_three_cards = players.select { |player| player.cards.length < MAX_CARDS }
     have_not_three_cards.empty?
   end
 
@@ -102,14 +144,6 @@ class Blackjack < Game
 
   def hide_hand?
     hide_hand
-  end
-
-  def show_cards(player)
-    self.hide_hand = false
-    clear_screen
-    print_players_state
-    print_winner(winner)
-    gets
   end
 
   def print_winner(player)
@@ -161,7 +195,7 @@ class Blackjack < Game
     end
   end
 
-  def gets_actions(player)
+  def gets_action(player)
     update_allowed_actions(player)
     print_actions
     number = gets_integer('Выберите действие: ')
@@ -171,14 +205,16 @@ class Blackjack < Game
   end
 
   def print_actions
+    puts "\nВаш ход: "
     allowed_actions.each_with_index do |action, index|
+      puts '---' if action[:separate] 
       puts "[#{index}] #{action[:name]}"
     end
   end
 
   protected
 
-  attr_accessor :allowed_actions, :hide_hand
+  attr_accessor :allowed_actions, :hide_hand, :round_number
   attr_writer :deck
   attr_reader :players_count
 end
