@@ -34,15 +34,10 @@ class BlackjackPlayer < Player
     true
   end
 
-  def show_cards
-    self.cards.join(' | ')
-  end
-
-  
   def state(params)
     cards = self.cards.collect { |card| computer? && params[:hide_hand] ? '?' : card }.join(' | ')
     points = computer? && params[:hide_hand] ? '?' : self.points
-    "#{name}: Банк: #{bank} Рука: #{cards} Очков: #{points}"
+    "#{name}: [Банк #{bank}] [Рука #{cards}] [Очков #{points}]"
   end
 
   def computer?

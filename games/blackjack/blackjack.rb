@@ -6,6 +6,7 @@ class Blackjack < Game
   include KeyboardGets
 
   POINTS_TO_WIN = 21
+  MAX_CARDS = 3
   BET_VALUE = 10
   ACTIONS = [
     {
@@ -52,10 +53,7 @@ class Blackjack < Game
       print_players_state
 
       players.each do |player|
-        self.current_player = player
-        update_enabled_actions(player)
-        
-        action = gets_actions
+        action = gets_actions(player)
         break if action == :exit
         player.computer? ? computer_remote(player) : send(action, player)
       end
@@ -68,7 +66,7 @@ class Blackjack < Game
     players_clear_hand
     create_deck
     give_out_cards(2)
-    show_hand = false
+    self.hide_hand = true
   end
 
   def players_clear_hand
@@ -80,7 +78,7 @@ class Blackjack < Game
   end
 
   def take_card_allow?(player)
-    player.cards.length < 3 && player.points < 21
+    player.cards.length < MAX_CARDS && player.points < POINTS_TO_WIN
   end
 
   def computer_remote(player)
@@ -88,7 +86,7 @@ class Blackjack < Game
   end
 
   def each_player_have_three_cards?
-    have_not_three_cards = players.collect { |player| player.cards.length < 3 }
+    have_not_three_cards = players.collect { |player| player.cards.length < MAX_CARDS }
     have_not_three_cards.empty?
   end
 
@@ -102,20 +100,12 @@ class Blackjack < Game
     end
   end
 
-  def show_hand?
-    show_hand
-  end
- 
   def hide_hand?
-    !show_hand?
-  end
-
-  def players_state
-    players.collect { |player| player_state(player) }
+    hide_hand
   end
 
   def show_cards(player)
-    self.show_hand = true
+    self.hide_hand = false
     clear_screen
     print_players_state
     print_winner(winner)
@@ -145,10 +135,6 @@ class Blackjack < Game
     print "\e[2J\e[f"
   end
 
-  def player_number(player)
-    players.find_index(player)
-  end
-
   def game_bank_to_player_bank(player)
     player.bank += bank
     self.bank = 0
@@ -169,29 +155,30 @@ class Blackjack < Game
     end
   end
 
-  def update_enabled_actions(player)
-    self.enabled_actions = ACTIONS.select do |action|
+  def update_allowed_actions(player)
+    self.allowed_actions = ACTIONS.select do |action|
       action.key?(:allow) && send(action[:allow], player) || !action.key?(:allow)
     end
   end
 
-  def gets_actions
+  def gets_actions(player)
+    update_allowed_actions(player)
     print_actions
     number = gets_integer('Выберите действие: ')
     raise StandardError, "Действие неопознано: #{number}" if ACTIONS[number].nil?
 
-    enabled_actions[number][:action]
+    allowed_actions[number][:action]
   end
 
   def print_actions
-    enabled_actions.each_with_index do |action, index|
+    allowed_actions.each_with_index do |action, index|
       puts "[#{index}] #{action[:name]}"
     end
   end
 
   protected
 
-  attr_accessor :current_player, :enabled_actions, :show_hand
+  attr_accessor :allowed_actions, :hide_hand
   attr_writer :deck
   attr_reader :players_count
 end
