@@ -30,13 +30,20 @@ class BlackjackPlayer < Player
     self.bank -= bet_value
   end
 
+  def get_bank(bank = 0)
+    self.bank += bank
+  end
+
   def pass
     true
   end
 
-  def state(params)
-    cards = self.cards.collect { |card| computer? && params[:hide_hand] ? '?' : card }.join(' | ')
-    points = computer? && params[:hide_hand] ? '?' : self.points
+  def state(params = {})
+    hide_opponent_cards = computer? && params[:hide_hand]
+
+    cards = self.cards.collect { |card| hide_opponent_cards ? '?' : card }.join(' | ')
+    points = hide_opponent_cards ? '?' : self.points
+
     "#{name}: [Банк #{bank}] [Рука #{cards}] [Очков #{points}]"
   end
 
@@ -66,6 +73,6 @@ class BlackjackPlayer < Player
     end
   end
 
-  attr_writer :points, :cards
+  attr_writer :points, :cards, :bank
   attr_reader :dealer
 end
