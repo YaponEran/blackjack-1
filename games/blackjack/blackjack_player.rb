@@ -1,6 +1,6 @@
 require_relative 'name_generator.rb'
 
-class BlackjackPlayer < Player
+class BlackjackPlayer < Contract::Player
   extend NameGenerator
 
   attr_reader :bank, :cards, :computer, :points

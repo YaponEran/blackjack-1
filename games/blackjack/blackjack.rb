@@ -2,7 +2,7 @@ require_relative 'deck.rb'
 require_relative 'keyboard_gets.rb'
 require_relative 'blackjack_player.rb'
 
-class Blackjack < Game
+class Blackjack < Contract::Game
   include KeyboardGets
 
   POINTS_TO_WIN = 21

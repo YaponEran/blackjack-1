@@ -1,2 +1,2 @@
-class King < Game
+class King < Contract::Game
 end
