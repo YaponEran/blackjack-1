@@ -1,4 +1,7 @@
 module KeyboardGets
+  class GetsError < StandardError
+  end
+
   def gets_string(msg = nil)
     print msg.to_s unless msg.nil?
     gets.chomp.strip

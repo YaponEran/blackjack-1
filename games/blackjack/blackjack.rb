@@ -1,4 +1,5 @@
 require_relative 'deck.rb'
+require_relative 'bank.rb'
 require_relative 'keyboard_gets.rb'
 require_relative 'blackjack_player.rb'
 
@@ -7,7 +8,7 @@ class Blackjack < Contract::Game
 
   POINTS_TO_WIN = 21
   MAX_CARDS = 3
-  BET_VALUE = 10
+  BET_RATE = 10
 
   EXIT_ACTION = :exit
   PLAY_AGAIN_ACTION = :play_again
@@ -37,7 +38,7 @@ class Blackjack < Contract::Game
 
   def initialize(players)
     @players = players
-    @bank = 0
+    @bank = Bank.new(BET_RATE)
   end
 
   def self.start(user_name, bot_count = 1)
@@ -69,26 +70,26 @@ class Blackjack < Contract::Game
   end
 
   def prepare_new_game
-    players_clear_hand
-    create_deck
-    players_bet_to_bank
-    give_out_cards(2)
-    self.hide_hand = true
     self.round_number = round_number.nil? ? 1 : round_number + 1
+    players_place_bet
+    players.each(&:clear_hand)
+    create_deck
+    give_out_cards(2)
+    players.each(&:hide_hand)
   end
 
   def show_cards(_p)
-    self.hide_hand = false
+    players.each(&:show_hand)
     clear_screen
     winner = winner_player
-    game_bank_to_player_bank(winner) if winner
+    winner.take_bets(bank) if winner
     print_states
     print_winner(winner)
     prepare_new_game if play_again?
   end
 
   def play_again?
-    gets_string('Играть новый раунд? [y/*]: ').downcase == 'y'
+    gets_string("\nИграть новый раунд? [y/*]: ").downcase == 'y'
   end
 
   def print_states
@@ -99,7 +100,10 @@ class Blackjack < Contract::Game
   end
 
   def print_game_state
-    puts "Банк: #{bank} | Игроков: #{players.length} | Раунд: #{round_number}"
+    puts ["[Раунд #{round_number}]",
+          "Банк игры #{bank}",
+          "Ставка #{BET_RATE}$",
+          "Игроков #{players.length}"].join(' | ')
   end
 
   def players_clear_hand
@@ -144,9 +148,20 @@ class Blackjack < Contract::Game
   end
 
   def print_players_state
+    l_column_length = [players_max_name.length, players_max_face.length].max
+
     players.each do |player|
-      puts player.state(hide_hand: hide_hand?)
+      player.print_state(hide_hand: hide_hand?, l_column_length: l_column_length)
+      printf "\n\n"
     end
+  end
+
+  def players_max_name
+    players.max_by { |player| player.name.length }.name
+  end
+
+  def players_max_face
+    players.max_by { |player| player.face.length }.face
   end
 
   def hide_hand?
@@ -154,7 +169,7 @@ class Blackjack < Contract::Game
   end
 
   def print_winner(player)
-    puts player.nil? ? 'Нет победителей' : "Победил #{player.name}"
+    puts player.nil? ? 'Нет победителей' : "Победил #{player.face} #{player.name}"
   end
 
   def winner_player
@@ -175,18 +190,8 @@ class Blackjack < Contract::Game
     print "\e[2J\e[f"
   end
 
-  def game_bank_to_player_bank(player)
-    player.get_bank(bank)
-    self.bank = 0
-  end
-
-  def player_bet_to_bank(player)
-    player.place_bet(BET_VALUE)
-    self.bank += BET_VALUE
-  end
-
-  def players_bet_to_bank
-    players.each { |player| player_bet_to_bank(player) }
+  def players_place_bet
+    players.each { |player| player.place_bet(bank) }
   end
 
   def give_out_cards(n = 1)
@@ -204,14 +209,14 @@ class Blackjack < Contract::Game
   def gets_action(player)
     update_allowed_actions(player)
     print_actions
-    number = gets_integer('Выберите действие: ')
+    number = gets_integer("\nВаш ход: ")
     raise StandardError, "Действие неопознано: #{number}" if ACTIONS[number].nil?
 
     allowed_actions[number][:action]
   end
 
   def print_actions
-    puts "\nВаш ход: "
+    puts '[Действия]'
     allowed_actions.each_with_index do |action, index|
       puts '---' if action[:separate]
       puts "[#{index}] #{action[:name]}"
@@ -221,6 +226,6 @@ class Blackjack < Contract::Game
   protected
 
   attr_accessor :allowed_actions, :hide_hand, :round_number
-  attr_writer :deck, :bank
+  attr_writer :deck, :bets
   attr_reader :players_count
 end

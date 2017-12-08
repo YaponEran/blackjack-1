@@ -2,6 +2,7 @@ require_relative 'contract.rb'
 require_relative 'game_station.rb'
 require_relative 'utilities/screen.rb'
 
+Screen::clear
 game_station = GameStation.new
 msg = nil
 
