@@ -1,3 +1,5 @@
+require_relative 'validation.rb'
+
 module Contract
   class Game
     attr_reader :players
@@ -7,11 +9,10 @@ module Contract
   end
 
   class Player
-    attr_reader :name, :computer
-    
-    def initialize(name, computer = false)
+    attr_reader :name
+
+    def initialize(name)
       @name = name
-      @computer = computer
     end
   end
 end

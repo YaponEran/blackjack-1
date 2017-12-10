@@ -1,0 +1,1 @@
+class BlackjackError < StandardError; end

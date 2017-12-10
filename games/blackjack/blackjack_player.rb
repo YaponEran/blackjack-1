@@ -5,8 +5,7 @@ class BlackjackPlayer < Contract::Player
   extend NameGenerator
   include Facer
 
-  attr_reader :cash, :cards, :computer, :points, :face
-  attr_accessor :hide_cards
+  attr_reader :cash, :cards, :computer, :points, :face, :hide_cards
 
   def initialize(name, computer = false, dealer = false)
     @cash = 100
@@ -15,7 +14,8 @@ class BlackjackPlayer < Contract::Player
     @points = 0
     @face = random_face
     @hide_cards = true
-    super(name, computer)
+    @computer = computer
+    super(name)
   end
 
   def take_card(card)
@@ -32,13 +32,11 @@ class BlackjackPlayer < Contract::Player
   end
 
   def place_bet(bank)
-    raise StandardError unless bank.is_a?(Bank)
     self.cash -= bank.bet_rate
     bank.sum += bank.bet_rate
   end
 
   def take_bets(bank)
-    raise StandardError unless bank.is_a?(Bank)
     self.cash += bank.give_full_sum
   end
 
@@ -102,6 +100,6 @@ class BlackjackPlayer < Contract::Player
     end
   end
 
-  attr_writer :points, :cards, :cash
+  attr_writer :points, :cards, :cash, :hide_cards
   attr_reader :dealer
 end
