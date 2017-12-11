@@ -130,12 +130,12 @@ class Blackjack < Contract::Game
   end
 
   def take_card_allow?(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer1' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     player.cards.length < MAX_CARDS && player.points < POINTS_TO_WIN
   end
 
   def human_turn(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer2' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     action = gets_action(player)
     return action if action == EXIT_ACTION
 
@@ -165,7 +165,7 @@ class Blackjack < Contract::Game
   end
 
   def take_card(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer3' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     player.take_card(deck.cards.pop)
   end
 
@@ -205,7 +205,7 @@ class Blackjack < Contract::Game
   end
 
   def pass(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer5' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     player.pass
   end
 
@@ -224,14 +224,14 @@ class Blackjack < Contract::Game
   end
 
   def update_allowed_actions(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer6' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     self.allowed_actions = ACTIONS.select do |action|
       action.key?(:allow) && send(action[:allow], player) || !action.key?(:allow)
     end
   end
 
   def gets_action(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer7' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     update_allowed_actions(player)
     print_actions
     number = gets_integer("\nВаш ход: ")
