@@ -1,8 +1,11 @@
 require_relative 'validation.rb'
+require_relative 'accessors.rb'
 
 class User
   include Validation
-
+  include Accessors
+  
+  attr_accessor_with_history :games
   attr_reader :name
   attr_accessor :player
 
@@ -16,5 +19,26 @@ class User
   def initialize(name)
     @name = name
     validate!
+  end
+
+  def popular_game
+    games_history.max_by(&:count)
+  end
+
+  def print_games_history
+    raise StandardError, 'История игр пуста' if games_history.nil? 
+    games_history.each_pair do |name, stat|
+      puts "#{name}"
+      puts "  кол-во запусков: #{stat[:count]}"
+      puts "  первый запуск: #{time_norm_format(stat[:first_exec])}"
+      puts "  последний запуск: #{time_norm_format(stat[:last_exec])}"
+      puts
+    end
+  end
+
+  private
+
+  def time_norm_format(time)
+    time.strftime '%H:%M %d-%m-%Y'
   end
 end

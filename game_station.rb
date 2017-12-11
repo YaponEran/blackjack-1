@@ -5,7 +5,6 @@ require_relative 'game_station_games.rb'
 require_relative 'game_station_menu.rb'
 require_relative 'validation.rb'
 require_relative 'user.rb'
-require 'yaml'
 
 class GameStation
   include Validation
@@ -27,9 +26,19 @@ class GameStation
     number = gets_integer("\nВыберите действие: ")
     raise StandardError, "Действие не найдено (#{number})" if menu.menu[number].nil?
 
-    start_game(game: menu.menu[number], user: user) if item_game?(number)
+    if item_game?(menu.menu[number])
+      start_game(game: menu.menu[number], user: user)
+    else
+      self.send menu.menu[number][:method] unless menu.menu[number][:method].nil?
+    end
 
-    menu.menu[number][:method]
+    menu.menu[number]
+  end
+
+  def print_statistic
+    Screen.clear
+    user.print_games_history
+    gets
   end
 
   def print_menu
@@ -40,18 +49,23 @@ class GameStation
     raise GameStationError, error
   end
 
-  private
-
-  def item_game?(item_number)
-    menu.menu[item_number][:item_type] == menu.games.game_type
+  def item_game?(item)
+    item[:item_type] == menu.games.game_type
   end
+
+  private
 
   def sign_in
     User.new(gets_user_name)
   end
 
   def print_top_bar
-    puts "Пользователь: #{user.name}"
+    if user.games_history.nil?
+      games_exec_count = 0
+    else
+      games_exec_count = user.games_history.length
+    end
+    puts "Пользователь: #{user.name} | Игр открыто: #{games_exec_count}"
   end
 
   def gets_user_name

@@ -11,7 +11,7 @@ class GameStationMenu
     {
       item_type: :action,
       name: 'Статистика',
-      method: :statistic
+      method: :print_statistic
     },
     {
       item_type: :action,

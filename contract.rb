@@ -4,8 +4,7 @@ module Contract
   class Game
     attr_reader :players
 
-    def self.start(user_name)
-    end
+    def self.start(user_name); end
   end
 
   class Player
