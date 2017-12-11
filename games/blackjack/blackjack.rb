@@ -16,21 +16,23 @@ class Blackjack < Contract::Game
 
   ACTIONS = [
     {
-      action: :pass,
+      method: :pass,
       name: 'Пасс'
     },
     {
-      action: :take_card,
+      method: :take_card,
       name: 'Взять карту',
       allow: :take_card_allow?
     },
     {
-      action: :show_cards,
-      name: 'Раскрыть карты'
+      method: :show_cards,
+      name: 'Раскрыть карты',
+      item_type: EXIT_ACTION
     },
     {
-      action: EXIT_ACTION,
+      method: :exit_to_menu,
       name: 'Выйти в меню',
+      item_type: EXIT_ACTION,
       separate: true
     }
   ].freeze
@@ -54,18 +56,17 @@ class Blackjack < Contract::Game
     action = nil
     loop do
       begin
-        show_cards if each_player_have_three_cards?
         print_states
-
         players.each do |player|
           if player.computer?
             computer_turn(player)
           else
             action = human_turn(player)
           end
-          break if action == EXIT_ACTION
         end
+        action = show_cards if each_player_have_three_cards?
 
+        prepare_new_game if action == PLAY_AGAIN_ACTION
         break if action == EXIT_ACTION
       rescue BlackjackError => error
         print_error(error)
@@ -89,7 +90,7 @@ class Blackjack < Contract::Game
     winner.take_bets(bank) if winner
     print_states
     print_winner(winner)
-    prepare_new_game if play_again?
+    play_again? ? PLAY_AGAIN_ACTION : EXIT_ACTION
   end
 
   def play_again?
@@ -120,22 +121,25 @@ class Blackjack < Contract::Game
     players.each(&:clear_hand)
   end
 
+  def exit_to_menu(_)
+    EXIT_ACTION
+  end
+
   def create_deck
     self.deck = Deck.new
   end
 
   def take_card_allow?(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer1' unless player.is_a?(BlackjackPlayer)
     player.cards.length < MAX_CARDS && player.points < POINTS_TO_WIN
   end
 
   def human_turn(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer2' unless player.is_a?(BlackjackPlayer)
     action = gets_action(player)
     return action if action == EXIT_ACTION
 
     send action, player
-    true
   end
 
   def computer_turn(player)
@@ -161,7 +165,7 @@ class Blackjack < Contract::Game
   end
 
   def take_card(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer3' unless player.is_a?(BlackjackPlayer)
     player.take_card(deck.cards.pop)
   end
 
@@ -187,7 +191,7 @@ class Blackjack < Contract::Game
   end
 
   def print_winner(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer4' unless player.is_a?(BlackjackPlayer)
     puts player.nil? ? 'Нет победителей' : "Победил #{player.face} #{player.name}"
   end
 
@@ -202,7 +206,7 @@ class Blackjack < Contract::Game
   end
 
   def pass(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer5' unless player.is_a?(BlackjackPlayer)
     player.pass
   end
 
@@ -221,20 +225,20 @@ class Blackjack < Contract::Game
   end
 
   def update_allowed_actions(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer6' unless player.is_a?(BlackjackPlayer)
     self.allowed_actions = ACTIONS.select do |action|
       action.key?(:allow) && send(action[:allow], player) || !action.key?(:allow)
     end
   end
 
   def gets_action(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
+    raise BlackjackError, 'Ожидается тип BlackjackPlayer7' unless player.is_a?(BlackjackPlayer)
     update_allowed_actions(player)
     print_actions
     number = gets_integer("\nВаш ход: ")
     raise BlackjackError, "Действие неопознано: #{number}" if ACTIONS[number].nil?
 
-    allowed_actions[number][:action]
+    allowed_actions[number][:method]
   end
 
   def press_any_key
@@ -254,5 +258,4 @@ class Blackjack < Contract::Game
 
   attr_accessor :allowed_actions, :hide_hand, :round_number
   attr_writer :deck, :bets
-  attr_reader :players_count
 end

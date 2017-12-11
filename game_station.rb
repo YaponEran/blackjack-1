@@ -65,7 +65,11 @@ class GameStation
     else
       games_exec_count = user.games_history.length
     end
-    puts "Пользователь: #{user.name} | Игр открыто: #{games_exec_count}"
+    data = [
+      "Пользователь: #{user.name}",
+      "Игр запущено: #{games_exec_count}",
+    ]
+    puts data.join(' | ')
   end
 
   def gets_user_name
@@ -75,6 +79,6 @@ class GameStation
   def start_game(params)
     Object.const_get(params[:game][:class]).start(params[:user].name)
   rescue StandardError => error
-    raise GameSationError, "Игра не может быть запущена (#{params[:game][:name]}): #{error}"
+    raise GameStationError, "Ошибка выполнения игры (#{params[:game][:name]}): #{error.backtrace}"
   end
 end

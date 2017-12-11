@@ -16,7 +16,7 @@ class GameStationMenu
     {
       item_type: :action,
       name: 'Выход',
-      method: :exit
+      method: EXIT_ACTION
     }
   ].freeze
 
