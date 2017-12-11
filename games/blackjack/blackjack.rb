@@ -191,7 +191,6 @@ class Blackjack < Contract::Game
   end
 
   def print_winner(player)
-    raise BlackjackError, 'Ожидается тип BlackjackPlayer4' unless player.is_a?(BlackjackPlayer)
     puts player.nil? ? 'Нет победителей' : "Победил #{player.face} #{player.name}"
   end
 
