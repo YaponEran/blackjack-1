@@ -47,17 +47,17 @@ module Validation
     end
 
     def min_length(value, params)
-      params[:message] ||= "Минимальная длина #{params[:param]} симв." 
+      params[:message] ||= "Минимальная длина #{params[:param]} симв."
       params[:message] if value.length < params[:param]
     end
 
     def max_length(value, params)
-      params[:message] ||= "Максимальная длина #{params[:param]} симв." 
+      params[:message] ||= "Максимальная длина #{params[:param]} симв."
       params[:message] if value.length > params[:param]
     end
 
     def boolean(value, params)
-      params[:message] ||= "Ожидается тип Boolean"
+      params[:message] ||= 'Ожидается тип Boolean'
       params[:message] unless [true, false].inlcude?(value)
     end
   end

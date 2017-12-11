@@ -14,10 +14,10 @@ class Bank
     raise StandardError, 'В банке недостаточно средств' if self.sum - sum < 0
     sum_before = self.sum
     self.sum -= sum
-    
+
     sum_before
   end
-   
+
   def to_s
     "#{sum}$"
   end

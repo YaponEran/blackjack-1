@@ -11,7 +11,7 @@ class User
   validate :name, :type, String
   validate :name, :min_length, 3
   validate :name, :max_length, 15
-  validate :name, :format, NAME_FORMAT, message: "Имя может включать только a-z, 0-9 и _"
+  validate :name, :format, NAME_FORMAT, message: 'Имя может включать только a-z, 0-9 и _'
 
   def initialize(name)
     @name = name

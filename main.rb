@@ -8,18 +8,16 @@ game_station = nil
 def print_error(error)
   Screen::clear
   puts "Ошибка: #{error}\n\n...нажмите любую клавишу..."
-  gets 
+  gets
 end
-
 
 loop do
   begin
     Screen::clear
     game_station ||= GameStation.new
     Screen::clear
-    game_station.print_menu
+    break if game_station.print_menu == game_station.menu.exit_action
   rescue GameStationError => error
     print_error(error)
   end
 end
-

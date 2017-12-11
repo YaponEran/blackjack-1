@@ -1,6 +1,6 @@
 class King < Contract::Game
   def self.start(name)
-    printf "\nТест ...нажмите любую клавишу...\n"
+    printf "\n#{name}, это тест ...нажмите любую клавишу...\n"
     gets
   end
 end
