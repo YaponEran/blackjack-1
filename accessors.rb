@@ -15,9 +15,12 @@ module Accessors
         define_method("#{param}=") do |value|
           instance_variable_set("@#{param}", value)
           history_values = instance_variable_get("@#{param}_history") || {}
-          history_values[value] ||= {count: 0, first_exec: Time.now}
-          history_values[value][:count] += 1  
-          history_values[value][:last_exec] = Time.now
+
+          time = Time.now
+          history_values[value] ||= { count: 0, first_exec: time }
+          history_values[value][:count] += 1
+          history_values[value][:last_exec] = time
+
           instance_variable_set("@#{param}_history", history_values)
         end
       end
