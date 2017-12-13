@@ -5,8 +5,8 @@ require_relative 'blackjack_players_view.rb'
 class BlackjackView
   attr_reader :game, :players
 
-  def initialize(game, players)
+  def initialize(game)
     @game =  BlackjackGameView.new(game)
-    @players = BlackjackPlayersView.new(players)
+    @players = BlackjackPlayersView.new(game.players)
   end
 end

@@ -43,7 +43,7 @@ class Blackjack < Contract::Game
   def initialize(players)
     @players = players
     @bank = Bank.new(BET_RATE)
-    @viewer = BlackjackView.new(self, players)
+    @viewer = BlackjackView.new(self)
   end
 
   def self.start(user_name, bot_count = 1)

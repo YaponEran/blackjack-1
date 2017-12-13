@@ -1,5 +1,3 @@
-require_relative '../blackjack_error.rb'
-
 class BlackjackPlayersView
   attr_reader :players
 
