@@ -3,6 +3,7 @@ require_relative 'bank.rb'
 require_relative 'keyboard_gets.rb'
 require_relative 'blackjack_player.rb'
 require_relative 'blackjack_error.rb'
+require_relative 'view/blackjack_view.rb'
 
 class Blackjack < Contract::Game
   include KeyboardGets
@@ -37,11 +38,12 @@ class Blackjack < Contract::Game
     }
   ].freeze
 
-  attr_reader :players, :deck, :bank
+  attr_reader :players, :deck, :bank, :round_number, :allowed_actions, :viewer
 
   def initialize(players)
     @players = players
     @bank = Bank.new(BET_RATE)
+    @viewer = BlackjackView.new(self, players)
   end
 
   def self.start(user_name, bot_count = 1)
@@ -103,18 +105,15 @@ class Blackjack < Contract::Game
     press_any_key
   end
 
-  def print_states
-    clear_screen
-    print_game_state
-    puts
-    print_players_state
+  def bet_rate
+    BET_RATE
   end
 
-  def print_game_state
-    puts ["[Раунд #{round_number}]",
-          "Банк игры #{bank}",
-          "Ставка #{BET_RATE}$",
-          "Игроков #{players.length}"].join(' | ')
+  def print_states
+    clear_screen
+    viewer.game.print_game_state
+    puts
+    viewer.players.print_players_state(hide_hand: hide_hand?)
   end
 
   def players_clear_hand
@@ -169,23 +168,6 @@ class Blackjack < Contract::Game
     player.take_card(deck.cards.pop)
   end
 
-  def print_players_state
-    l_column_length = [players_max_name.length, players_max_face.length].max
-
-    players.each do |player|
-      player.print_state(hide_hand: hide_hand?, l_column_length: l_column_length)
-      printf "\n\n"
-    end
-  end
-
-  def players_max_name
-    players.max_by { |player| player.name.length }.name
-  end
-
-  def players_max_face
-    players.max_by { |player| player.face.length }.face
-  end
-
   def hide_hand?
     hide_hand
   end
@@ -233,7 +215,7 @@ class Blackjack < Contract::Game
   def gets_action(player)
     raise BlackjackError, 'Ожидается тип BlackjackPlayer' unless player.is_a?(BlackjackPlayer)
     update_allowed_actions(player)
-    print_actions
+    viewer.game.print_actions
     number = gets_integer("\nВаш ход: ")
     raise BlackjackError, "Действие неопознано: #{number}" if ACTIONS[number].nil?
 
@@ -245,16 +227,8 @@ class Blackjack < Contract::Game
     gets
   end
 
-  def print_actions
-    puts '[Действия]'
-    allowed_actions.each_with_index do |action, index|
-      puts '---' if action[:separate]
-      puts "[#{index}] #{action[:name]}"
-    end
-  end
-
   protected
 
-  attr_accessor :allowed_actions, :hide_hand, :round_number
-  attr_writer :deck, :bets
+  attr_accessor :hide_hand
+  attr_writer :deck, :bets, :round_number, :allowed_actions
 end

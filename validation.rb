@@ -60,6 +60,11 @@ module Validation
       params[:message] ||= 'Ожидается тип Boolean'
       params[:message] unless [true, false].inlcude?(value)
     end
+
+    def each_type(value, params)
+      params[:message] ||= "Содержит тип, отличающийся от #{params[:param]}"
+      params[:message] if value.reject { |v| v.is_a?(params[:param]) }.length.empty?
+    end
   end
 
   module ClassMethods
