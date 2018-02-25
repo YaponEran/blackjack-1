@@ -20,7 +20,7 @@ class BlackjackPlayer < Contract::Player
 
   def take_card(card)
     cards << card
-    update_points
+    update_points(card)
   end
 
   def clear_hand
@@ -82,22 +82,19 @@ class BlackjackPlayer < Contract::Player
     new(generate_name, true, true)
   end
 
+  def clear_points
+    self.points = 0
+  end
   protected
 
-  def update_points
-    a = []
-    self.points = 0
-    cards.each do |card|
-      if card.rank == 'A'
-        a << card
-      else
-        self.points += card.value
-      end
-    end
-
-    a.each do |card|
-      self.points += card.value + points > 21 ? 1 : card.value
-    end
+  def update_points(card)
+    puts (card)
+    puts (points)
+    self.points += if card.rank == 'A'
+                     points > 11 ? 1 : card.value
+                   else
+                     card.value
+                   end
   end
 
   attr_writer :points, :cards, :cash, :hide_cards

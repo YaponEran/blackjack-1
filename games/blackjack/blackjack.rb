@@ -9,6 +9,7 @@ class Blackjack < Contract::Game
   include KeyboardGets
 
   POINTS_TO_WIN = 21
+  START_CARDS = 2
   MAX_CARDS = 3
   BET_RATE = 10
 
@@ -80,8 +81,9 @@ class Blackjack < Contract::Game
     self.round_number = round_number.nil? ? 1 : round_number + 1
     players_place_bet
     players.each(&:clear_hand)
+    players.each(&:clear_points)
     create_deck
-    give_out_cards(2)
+    give_out_cards(START_CARDS)
     players.each(&:hide_hand)
   end
 
